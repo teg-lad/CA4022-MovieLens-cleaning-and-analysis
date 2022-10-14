@@ -1,2 +1,8 @@
 # CA4022-MovieLens-cleaning-and-analysis
-CA4022 Assignment 1 - Cleaning and analysing MovieLens dataset using Pig and Hive (Apache Hadoop)
+
+This is the repo for my CA4022 - Data at Speed and Scale - Assignment 1
+
+This assignment makes use of Pig and Hive in the Hadoop ecosystem to clean and analyse the MovieLens dataset.
+The final completed PDF can be found [here]()
+
+The steps taken to carry out this assignment are listed below.
