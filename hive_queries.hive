@@ -1,0 +1,90 @@
+-- This file contains all of the Hive code used to query the data.
+
+-- Create the database/schema to create a table within.
+CREATE SCHEMA IF NOT EXISTS CA4022;
+
+-- Specify the database to use.
+USE CA4022;
+
+-- Delete the table if it exists so we can load a new one in (For testing).
+DROP TABLE ratings;
+
+-- Create a table with the listed columns. Tab separated, collection items separated with |.
+CREATE TABLE IF NOT EXISTS ratings (userId INT, movieId INT, title STRING, rating DOUBLE,
+ratings_timestamp TIMESTAMP, year INT, genres ARRAY<STRING>, tag STRING, tags_timestamp TIMESTAMP)
+COMMENT "Movie ratings"
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY "\t"
+collection items TERMINATED BY "|"
+LINES TERMINATED BY "\n"
+STORED AS TEXTFILE;
+
+-- Read the data in from the local path given and overwrite it into the ratings table.
+LOAD DATA LOCAL INPATH '/home/tegarta2/CA4022-MovieLens-cleaning-and-analysis/outputs/joined/data.tsv'
+OVERWRITE INTO TABLE ratings;
+
+------------------------------------------------------------------------------------------------------------------------
+-- 1. What is the title of the movie with the highest number of ratings (top-rated movie)?
+-- My understanding is to return the movies that have the most ratings from users, so I will count how many ratings each movie has and order by the count descending.
+SELECT title, COUNT(rating) AS RatingsCount FROM ratings
+GROUP BY title
+ORDER BY RatingsCount DESC
+LIMIT 10;
+
+------------------------------------------------------------------------------------------------------------------------
+-- 2. What is the title of the most liked movie (e.g. only 5 stars ratings OR only 4 and 5 star ratings OR majority of 5 star ratings)
+-- Here I have decided to look at the average movie rating, but only when the movie has over 20 ratings, so the average will have a reasonable representation of users.
+SELECT title, AVG(rating) AS AverageRating, COUNT(rating) AS RatingsCount FROM ratings
+GROUP BY title
+HAVING RatingsCount >= 20
+ORDER BY AverageRating DESC
+LIMIT 10;
+
+------------------------------------------------------------------------------------------------------------------------
+-- 2a. Now let us just consider 5 star reviews and find the movies with the most 5 star ratings to look at this from a different angle.
+SELECT title, AVG(rating) AS AverageRating, COUNT(rating) AS RatingsCount FROM ratings
+WHERE rating > 4.5
+GROUP BY title
+ORDER BY RatingsCount DESC
+LIMIT 10;
+
+------------------------------------------------------------------------------------------------------------------------
+-- 3. Who is the User with the highest average rating?
+SELECT userId, AVG(rating) AS AverageRating, COUNT(rating) AS RatingsCount FROM ratings
+GROUP BY userId
+ORDER BY AverageRating DESC
+LIMIT 10;
+
+------------------------------------------------------------------------------------------------------------------------
+-- 4. Count the number of ratings for each star level (How many 1 star ratings? ... How many 5* ratings?)
+SELECT rating, AVG(rating) AS AverageRating, COUNT(rating) AS RatingsCount FROM ratings
+GROUP BY rating
+ORDER BY RatingsCount DESC;
+
+------------------------------------------------------------------------------------------------------------------------
+-- 5. What is the most popular rating?
+SELECT rating, AVG(rating) AS AverageRating, COUNT(rating) AS RatingsCount FROM ratings
+GROUP BY rating
+ORDER BY RatingsCount DESC
+LIMIT 1;
+
+------------------------------------------------------------------------------------------------------------------------
+-- 6. How are ratings distributed by genre? (this can tell you what genre is most seen and rated, independently of the rating)
+SELECT genre, COUNT(rating) AS RatingsCount FROM ratings
+LATERAL VIEW explode(genres) genreTable AS genre
+GROUP BY genre
+ORDER BY RatingsCount DESC;
+
+------------------------------------------------------------------------------------------------------------------------
+
+-- Extra to expand on genre distribution.
+-- I will output this file so I can create a visualisation using the results.
+-- 7. How are the ratings distributed within these genres?
+INSERT OVERWRITE LOCAL DIRECTORY '/home/tegarta2/CA4022-MovieLens-cleaning-and-analysis/outputs/hive/genres'
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+
+SELECT genre, rating, COUNT(rating) AS RatingsCount FROM ratings
+LATERAL VIEW explode(genres) genreTable AS genre
+GROUP BY genre, rating
+ORDER BY RatingsCount DESC;
