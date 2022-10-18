@@ -11,7 +11,7 @@ DROP TABLE ratings;
 
 -- Create a table with the listed columns. Tab separated, collection items separated with |.
 CREATE TABLE IF NOT EXISTS ratings (userId INT, movieId INT, title STRING, rating DOUBLE,
-ratings_timestamp TIMESTAMP, year INT, genres ARRAY<STRING>, tag STRING, tags_timestamp TIMESTAMP)
+ratings_timestamp TIMESTAMP, year INT, genres ARRAY<STRING>)
 COMMENT "Movie ratings"
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY "\t"
