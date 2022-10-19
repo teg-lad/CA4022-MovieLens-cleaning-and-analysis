@@ -20,6 +20,7 @@ The contents of this repo are as follows:
 + [Outputs](outputs) - This folder contains all data output from Pig and Hive.
 + [Screenshots](screenshots) - This folder contains the evidence of output from Pig and Hive.
 + [Visualisations](visualisations) - This folder contains the visualisations made from the clean data and the Hive output.
++ [Jupyter notebook](CA4022-Apache-Pig-and-Hive-Visualisations.ipynb) - Jupyter notebook used to create visualisations for the final PDF.
 + [Cleaning.pig](cleaning.pig) - This Pig file cleans the movies, ratings and tags files.
 + [Processing.pig](processing.pig) - This Pig file joins the data and carries out the queries, saving all data generated.
 + [Hive_queries.hive](hive_queries.hive) - This Hive file contains the code to read in the data into a table, query the data and save some output for breakdown of the genres.
